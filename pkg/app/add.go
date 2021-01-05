@@ -15,7 +15,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-func AddPaper(url string) error {
+// Adds a paper from the (potentially paywalled url) to seneca
+func AddPaper(url string, fs core.Filesystem) error {
 
 	mirrors := getSciHubURLs()
 	pdfURI, doi := getPDFSource(mirrors, url)
@@ -32,22 +33,7 @@ func AddPaper(url string) error {
 	}
 
 	paper := &core.Paper{DOI: doi, RawData: pdfBytes}
-	fs := core.Filesystem{Root: "/Users/kenny/seneca"}
 	fs.AddPaper(paper)
-
-	// Create postfix dir if not exist
-	// out, err := os.Create(postfix)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer out.Close()
-
-	// n, err := io.Copy(out, resp.Body)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// print(n, prefix)
 
 	return nil
 

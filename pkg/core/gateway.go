@@ -2,6 +2,7 @@ package core
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -15,12 +16,15 @@ type Filesystem struct {
 	Root string
 }
 
-func (f Filesystem) GetPaper(paper *Paper) error {
-	return nil
-}
-
 func (f Filesystem) GetRoot() string {
 	return filepath.Join(f.Root, "/.seneca")
+}
+
+// Wraps grep to search through .txt representation of pdfs without parsing results
+func (f Filesystem) RawSearch(query string) ([]byte, error) {
+	root := filepath.Join(f.Root, "/.seneca")
+	grep := exec.Command("grep", "-r", "--include", "*.txt", query, root)
+	return grep.Output()
 }
 
 func (f Filesystem) AddPaper(paper *Paper) error {
@@ -56,6 +60,12 @@ func (f Filesystem) AddPaper(paper *Paper) error {
 		return err
 	}
 
+	// Create txt representation of pdf for grep
+
+	return nil
+}
+
+func (f Filesystem) GetPaper(paper *Paper) error {
 	return nil
 }
 
