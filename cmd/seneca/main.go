@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/kennyworkman/seneca/pkg/app"
@@ -9,10 +10,19 @@ import (
 
 func main() {
 
-	// CLI flags.
-	url := os.Args[1]
+	if len(os.Args) > 2 {
+		fmt.Printf("Too many args")
+		return
+	}
+
+	arg := os.Args[1]
 
 	fs := core.Filesystem{Root: "/Users/kenny/seneca"}
-	app.AddPaper(url, fs)
-	app.ReadPaper(fs)
+	if arg == "letters" {
+		app.ReadPaper(fs)
+	} else {
+		url := os.Args[1]
+		app.AddPaper(url, fs)
+	}
+
 }
