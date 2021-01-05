@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Gateway interface {
@@ -53,8 +54,8 @@ func (f Filesystem) SearchAndParse(query string) ([]*Paper, error) {
 		if err != nil {
 			return nil, err
 		}
-		paper.Detail = head
-		paper.Detail += grep
+		paper.Head = head
+		paper.Grep += grep
 		papers = append(papers, paper)
 	}
 
@@ -95,14 +96,20 @@ func (f Filesystem) AddPaper(paper *Paper) error {
 		return err
 	}
 
-	// Add all note metadata + boilerplate here.
-	_, err = note.Write([]byte("metadata"))
+	// Create txt representation of pdf for grep.
+	_, err = exec.Command("pdftotext", pdfFile).Output()
 	if err != nil {
 		return err
 	}
 
-	// Create txt representation of pdf for grep.
-	_, err = exec.Command("pdftotext", pdfFile).Output()
+	head, err := exec.Command("head", paper.txtFile()).Output()
+	if err != nil {
+		return err
+	}
+
+	// Add all note metadata + boilerplate here.
+	head = append(head, []byte("\n----")...)
+	_, err = note.Write(head)
 	if err != nil {
 		return err
 	}
@@ -110,7 +117,36 @@ func (f Filesystem) AddPaper(paper *Paper) error {
 	return nil
 }
 
-func (f Filesystem) GetPaper(paper *Paper) error {
+func (f Filesystem) ReadPaper(paper *Paper) error {
+
+	prefix, _ := paper.splitDOI()
+	os.Chdir(filepath.Join(f.GetRoot(), prefix))
+
+	// Write current date as a header
+	note, err := os.OpenFile(paper.noteFile(), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return err
+	}
+	defer note.Close()
+	dateHeader := "\n\n## " + time.Now().Format("Mon Jan 2")
+	_, err = note.Write([]byte(dateHeader))
+	if err != nil {
+		return err
+	}
+
+	// Open pdf
+	exec.Command("open", paper.pdfFile()).Output()
+
+	// Emulate terminal and open vim
+	// https://stackoverflow.com/questions/21513321/how-to-start-vim-from-go
+	vim := exec.Command("vim", paper.noteFile())
+	vim.Stdin = os.Stdin
+	vim.Stdout = os.Stdout
+	vim.Stderr = os.Stderr
+	err = vim.Run()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

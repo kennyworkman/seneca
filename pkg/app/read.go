@@ -43,7 +43,7 @@ func ReadPaper(fs core.Filesystem) {
 		templates := &promptui.SelectTemplates{
 			Inactive: "{{ .DOI }}",
 			Active:   " {{ .DOI | cyan }}",
-			Details:  "\n{{ .Detail }}",
+			Details:  "\n{{ .Head | blue }}\n{{ .Grep | red}}",
 		}
 
 		// Retrieve / open associated paper and note buffer
@@ -53,13 +53,13 @@ func ReadPaper(fs core.Filesystem) {
 			Templates: templates,
 		}
 
-		_, selectRes, err := selectPrompt.Run()
+		selectIdx, _, err := selectPrompt.Run()
 
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
 			return
 		}
 
-		fmt.Printf("\n%s\n", selectRes)
+		fs.ReadPaper(res[selectIdx])
 	}
 }

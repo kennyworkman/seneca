@@ -4,8 +4,10 @@ import "strings"
 
 type Paper struct {
 	DOI string
-	// For CLI interface - Head + Grep results.
-	Detail  string
+	// Head results (first few lines) on this paper
+	Head string
+	// Grep results for some query
+	Grep    string
 	RawData []byte
 }
 
@@ -29,6 +31,11 @@ func (p Paper) splitDOI() (string, string) {
 func (p Paper) pdfFile() string {
 	_, postfix := p.splitDOI()
 	return postfix + ".pdf"
+}
+
+func (p Paper) txtFile() string {
+	_, postfix := p.splitDOI()
+	return postfix + ".txt"
 }
 
 func (p Paper) noteFile() string {
