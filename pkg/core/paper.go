@@ -4,7 +4,7 @@ import "strings"
 
 type Paper struct {
 	DOI     string
-	RawData []string
+	RawData []byte
 }
 
 type PaperRepository interface {
@@ -20,9 +20,11 @@ func (p Paper) splitDOI() (string, string) {
 }
 
 func (p Paper) pdfFile() string {
-	return p.DOI + ".pdf"
+	_, postfix := p.splitDOI()
+	return postfix + ".pdf"
 }
 
 func (p Paper) noteFile() string {
-	return p.DOI + "_notes.md"
+	_, postfix := p.splitDOI()
+	return postfix + "_notes.md"
 }

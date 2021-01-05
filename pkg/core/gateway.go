@@ -19,18 +19,19 @@ func (f Filesystem) GetPaper(paper *Paper) error {
 	return nil
 }
 
+func (f Filesystem) GetRoot() string {
+	return filepath.Join(f.Root, "/.seneca")
+}
+
 func (f Filesystem) AddPaper(paper *Paper) error {
-	prefix, postfix := paper.splitDOI()
+	prefix, _ := paper.splitDOI()
 
-	// Mkdir is safe.
-	os.Mkdir(filepath.Join(f.Root, prefix), 0700)
-	os.Mkdir(filepath.Join(f.Root, prefix, postfix), 0700)
-
-	// create notes buffer and pdf file
+	// Mkdir is safe. Won't overwrite existing folders/files.
+	os.MkdirAll(filepath.Join(f.GetRoot(), prefix), 0700)
 
 	pdfFile := paper.pdfFile()
 	noteFile := paper.noteFile()
-	os.Chdir(filepath.Join(f.Root, prefix, postfix))
+	os.Chdir(filepath.Join(f.GetRoot(), prefix))
 
 	pdf, err := os.Create(pdfFile)
 	if err != nil {
@@ -44,10 +45,16 @@ func (f Filesystem) AddPaper(paper *Paper) error {
 	}
 	defer note.Close()
 
-	// n, err := io.Copy()
-	// if err != nil {
-	// 	return err
-	// }
+	_, err = pdf.Write(paper.RawData)
+	if err != nil {
+		return err
+	}
+
+	// todo add note boilerplate
+	_, err = note.Write([]byte("metadata"))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
