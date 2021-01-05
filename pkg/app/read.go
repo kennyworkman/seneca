@@ -9,7 +9,7 @@ import (
 )
 
 // Retrieve a paper and associated letter (note buffer)
-func ReadPaper(query string, fs core.Filesystem) {
+func ReadPaper(fs core.Filesystem) {
 
 	// Interactive terminal list of results from search query
 	// https://stackoverflow.com/questions/41037870/go-exec-command-run-command-which-contains-pipe
@@ -18,7 +18,7 @@ func ReadPaper(query string, fs core.Filesystem) {
 		// filesystem search ?, using root
 		res, _ := fs.RawSearch(input)
 
-		fmt.Printf("\n%+v\n", string(res))
+		// fmt.Printf("\n%+v\n", string(res))
 
 		if len(res) == 0 {
 			return errors.New("No results")
@@ -31,14 +31,35 @@ func ReadPaper(query string, fs core.Filesystem) {
 		Validate: validate,
 	}
 
-	result, err := prompt.Run()
+	query, err := prompt.Run()
 
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
+	} else {
+
+		res, _ := fs.SearchAndParse(query)
+
+		templates := &promptui.SelectTemplates{
+			Inactive: "{{ .DOI }}",
+			Active:   " {{ .DOI | cyan }}",
+			Details:  "\n{{ .Detail }}",
+		}
+
+		// Retrieve / open associated paper and note buffer
+		selectPrompt := promptui.Select{
+			Label:     "Select Paper",
+			Items:     res,
+			Templates: templates,
+		}
+
+		_, selectRes, err := selectPrompt.Run()
+
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+
+		fmt.Printf("\n%s\n", selectRes)
 	}
-
-	fmt.Printf("You choose %q\n", result)
-
-	// Retrieve / open associated paper and note buffer
 }

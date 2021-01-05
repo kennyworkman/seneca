@@ -3,7 +3,9 @@ package core
 import "strings"
 
 type Paper struct {
-	DOI     string
+	DOI string
+	// For CLI interface - Head + Grep results.
+	Detail  string
 	RawData []byte
 }
 
@@ -11,6 +13,11 @@ type PaperRepository interface {
 	GetPaper(paper *Paper) error
 	AddPaper(paper *Paper) error
 	DeletePaper(paper *Paper) error
+}
+
+// Creates Paper object from DOI
+func NewPaper(doiPrefix, doiPostfix string) *Paper {
+	return &Paper{DOI: doiPrefix + "/" + doiPostfix}
 }
 
 // DOI syntax - https://www.doi.org/doi_handbook/2_Numbering.html#2.2
@@ -27,4 +34,16 @@ func (p Paper) pdfFile() string {
 func (p Paper) noteFile() string {
 	_, postfix := p.splitDOI()
 	return postfix + "_notes.md"
+}
+
+// Returns first several lines of text representation.
+func (p Paper) GetHead(fs Filesystem) (string, error) {
+	prefix, postfix := p.splitDOI()
+	return fs.fileHead(prefix, postfix)
+}
+
+// Returns query grepped on this paper alone.
+func (p Paper) GetGrep(query string, fs Filesystem) (string, error) {
+	prefix, postfix := p.splitDOI()
+	return fs.fileGrep(query, prefix, postfix)
 }

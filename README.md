@@ -3,14 +3,27 @@ Seneca
 
 https://en.wikipedia.org/wiki/Seneca_the_Younger
 
-Literature indexing, search, and note management.
+This uses sci-hub, which is probably illegal.
+
+Literature indexing, search, and note management. Special attention tended to: 
+
+  * decentralized structure
+  * low mental transaction cost on note read/write
+  * speed
+  * terminal based workflow with hackable internals
+
+Assumes text editor of choice is `vim`. Good synergy with tiling window managers.
+
 
 _Think of big soup of literature, don't impose structure_
 1. Add paper with just URL
 2. Search across text easily
 3. Manage note buffers with each paper
 
-Search just brings `head -l 5` - can easily identify title.
+`seneca <paper url>`
+`seneca letters <grep search>`
+
+-> Search just brings `head -l 5` - can easily identify title.
 Then open paper with editor and open `seneca letter <paper>` for note.
 
 ## Implementation
@@ -22,6 +35,12 @@ Directory for each paper:
   * note buffer
 
 `seneca http` - pulls from scihub?
+
+## Debt
+
+  * Doesn't work on:
+    * arxiv
+    * ncbi
 
 ## Backlog
 

@@ -104,9 +104,10 @@ func getPDFSource(mirrors []string, url string) (pdfURI string, doi string) {
 
 	iframeSearch(tokenized)
 
-	if pdfURI != "" {
+	if pdfURI[:6] != "https:" {
 		pdfURI = "https:" + pdfURI
 	}
+	fmt.Printf("\n%+v\n", pdfURI)
 
 	return pdfURI, doi
 }
