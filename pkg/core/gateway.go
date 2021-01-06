@@ -135,19 +135,20 @@ func (f Filesystem) ReadPaper(paper *Paper) error {
 	}
 
 	// Open pdf
-	exec.Command("open", paper.pdfFile()).Output()
+	exec.Command("zathura", paper.pdfFile()).Start()
 
 	// Emulate terminal and open vim
 	// https://stackoverflow.com/questions/21513321/how-to-start-vim-from-go
 	vim := exec.Command("vim", paper.noteFile())
 	vim.Stdin = os.Stdin
 	vim.Stdout = os.Stdout
-	vim.Stderr = os.Stderr
 	err = vim.Run()
 	if err != nil {
 		return err
 	}
+
 	return nil
+
 }
 
 func (f Filesystem) DeletePaper(paper *Paper) error {

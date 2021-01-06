@@ -18,7 +18,7 @@ func main() {
 	arg := os.Args[1]
 
 	fs := core.Filesystem{Root: "/Users/kenny/seneca"}
-	if arg == "letters" {
+	if arg == "letters" || arg == "l" {
 		app.ReadPaper(fs)
 	} else {
 		url := os.Args[1]

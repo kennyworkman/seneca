@@ -17,6 +17,8 @@ clean:
 build: clean
 		@echo "$(OK_COLOR)==> Building binary... $(NO_COLOR)"
 		go build -o $(APP) cmd/$(APP)/main.go
+		chmod +x ./seneca
+		cp ./seneca /usr/local/bin/
 
 run:
 		go run cmd/$(APP)/main.go
