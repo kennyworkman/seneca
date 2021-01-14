@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 
 	"github.com/kennyworkman/seneca/pkg/app"
 	"github.com/kennyworkman/seneca/pkg/core"
@@ -19,7 +20,12 @@ func main() {
 
 	arg := os.Args[1]
 
-	fs := core.Filesystem{Root: "/Users/kenny/seneca"}
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fs := core.Filesystem{Root: usr.HomeDir}
+
 	if arg == "letters" || arg == "l" {
 		app.ReadPaper(fs)
 	} else {

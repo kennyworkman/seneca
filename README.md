@@ -1,20 +1,13 @@
-Seneca
+Seneca 🏛️
 ---
 
 https://en.wikipedia.org/wiki/Seneca_the_Younger
 
 This uses sci-hub, which is probably illegal.
 
-Literature indexing, search, and note management. Special attention towards: 
+Literature indexing, search, and note management.
 
-  * decentralized structure
-  * low mental transaction cost on note read/write
-  * speed
-  * terminal based workflow with hackable internals
-
-Assumes text editor of choice is `vim`. Good synergy with tiling window managers.
-
-Read more [here](https://kennethworkman.com/code/seneca/).
+![](attention.gif)
 
 ### Quickstart
 
@@ -46,6 +39,19 @@ it (just in case).
 
 Notes persist across time. Opening a long forgotten paper weeks later will
 recover time stamped notes from my last interaction with it.
+
+### Design
+
+ Special attention towards: 
+
+  * decentralized structure
+  * low mental transaction cost on note read/write
+  * speed
+  * terminal based workflow with hackable internals
+
+Assumes text editor of choice is `vim`. Good synergy with tiling window managers.
+
+Read more [here](https://kennethworkman.com/code/seneca/).
 
 ## Debt
 
