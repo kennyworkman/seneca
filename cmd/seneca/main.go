@@ -7,6 +7,7 @@ import (
 
 	"github.com/kennyworkman/seneca/pkg/app"
 	"github.com/kennyworkman/seneca/pkg/core"
+	"github.com/manifoldco/promptui"
 )
 
 func main() {
@@ -27,7 +28,20 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fs.ReadPaper(paper)
+
+		prompt := promptui.Prompt{
+			Label:     "access",
+			IsConfirm: true,
+		}
+
+		_, err = prompt.Run()
+
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		} else {
+			fs.ReadPaper(paper)
+		}
 	}
 
 }

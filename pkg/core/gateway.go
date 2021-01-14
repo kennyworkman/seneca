@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,7 +34,7 @@ func (f Filesystem) RawSearch(query string) ([]byte, error) {
 func (f Filesystem) SearchAndParse(query string) ([]*Paper, error) {
 
 	root := filepath.Join(f.Root, "/.seneca")
-	grep := exec.Command("grep", "-lr", "--include", "*.txt", query, root)
+	grep := exec.Command("grep", "-lir", "--include", "*.txt", query, root)
 
 	filesText, err := grep.Output()
 	if err != nil {
@@ -70,6 +71,12 @@ func txtFilePathtoPaper(path string) *Paper {
 }
 
 func (f Filesystem) AddPaper(paper *Paper) error {
+
+	if f.ExistsPaper(paper) {
+		fmt.Printf("\nPaper already exists in seneca")
+		return nil
+	}
+
 	prefix, _ := paper.splitDOI()
 
 	// Mkdir is safe. Won't overwrite existing folders/files.
@@ -115,6 +122,21 @@ func (f Filesystem) AddPaper(paper *Paper) error {
 	}
 
 	return nil
+}
+
+func (f Filesystem) ExistsPaper(paper *Paper) bool {
+	prefix, _ := paper.splitDOI()
+
+	// Mkdir is safe. Won't overwrite existing folders/files.
+	os.MkdirAll(filepath.Join(f.GetRoot(), prefix), 0700)
+
+	pdfFile := paper.pdfFile()
+	os.Chdir(filepath.Join(f.GetRoot(), prefix))
+
+	if _, err := os.Stat(pdfFile); err == nil {
+		return true
+	}
+	return false
 }
 
 func (f Filesystem) ReadPaper(paper *Paper) error {
