@@ -15,15 +15,63 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Adds a paper from the (potentially paywalled url) to seneca
-func AddPaper(url string, fs core.Filesystem) error {
+// Adds a paper represented by URL to seneca.
+func AddPaper(url string, fs core.Filesystem) (*core.Paper, error) {
 
-	mirrors := getSciHubURLs()
-	pdfURI, doi := getPDFSource(mirrors, url)
+	// Easy to recover the DOI from sci-hub's landing html.
+	// Need DOI for persistence scheme.
+	// Therefore need hardcoded recovery of DOI and pdf uri from:
+	//     * bioarxiv
+	//     * arxiv
 
-	resp, err := http.Get(pdfURI)
+	var doi, pdfURI string
+	var err error
+	if strings.Contains(url, "arxiv.org") {
+
+		fmt.Printf("\nRecognized arxiv paper.")
+
+		// Recover DOI from arxiv URL
+		splitURL := strings.Split(url, "/")
+		doi = "arxiv/" + splitURL[len(splitURL)-1]
+
+		pdfURI = strings.Replace(url, "abs", "pdf", 1) + ".pdf"
+
+	} else if strings.Contains(url, "biorxiv.org") {
+
+		fmt.Printf("\nRecognized biorxiv paper.")
+
+		// Recover DOI from biorxiv URL
+		splitURL := strings.Split(url, "/")
+		doi = splitURL[len(splitURL)-2] + "/" + splitURL[len(splitURL)-1]
+
+		pdfURI = url + ".pdf"
+
+	} else {
+
+		// Check list of mirrors for sci-hub thats up.
+		// Scrape from there.
+		mirrors := getSciHubURLs()
+		if len(mirrors) == 0 {
+			return nil, fmt.Errorf("No scihub mirrors found.")
+		}
+		fmt.Printf("\nAttempting download from sci-hub mirrors.")
+		pdfURI, doi, err = getPDFSource(mirrors, url)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	fmt.Printf("\nFetching paper binary...")
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", pdfURI, nil)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -35,8 +83,7 @@ func AddPaper(url string, fs core.Filesystem) error {
 	paper := &core.Paper{DOI: doi, RawData: pdfBytes}
 	fs.AddPaper(paper)
 
-	return nil
-
+	return paper, nil
 }
 
 // https://pkg.go.dev/golang.org/x/net/html#example-Parse
@@ -70,7 +117,7 @@ func getSciHubURLs() (mirrors []string) {
 }
 
 // TODO: Tries from list of mirrors until accessible pdf URI and doi successfully pulled.
-func getPDFSource(mirrors []string, url string) (pdfURI string, doi string) {
+func getPDFSource(mirrors []string, url string) (pdfURI string, doi string, err error) {
 	candidate := mirrors[0] + url
 
 	resp, err := http.Get(candidate)
@@ -104,12 +151,15 @@ func getPDFSource(mirrors []string, url string) (pdfURI string, doi string) {
 
 	iframeSearch(tokenized)
 
+	if len(pdfURI) == 0 {
+		return "", "", fmt.Errorf("Unable to recover paper with scihub")
+	}
+
 	if pdfURI[:6] != "https:" {
 		pdfURI = "https:" + pdfURI
 	}
-	fmt.Printf("\n%+v\n", pdfURI)
 
-	return pdfURI, doi
+	return pdfURI, doi, nil
 }
 
 // TODO: helper method to parse sci-hub page for doi

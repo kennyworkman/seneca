@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/kennyworkman/seneca/pkg/app"
@@ -22,7 +23,11 @@ func main() {
 		app.ReadPaper(fs)
 	} else {
 		url := os.Args[1]
-		app.AddPaper(url, fs)
+		paper, err := app.AddPaper(url, fs)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fs.ReadPaper(paper)
 	}
 
 }
