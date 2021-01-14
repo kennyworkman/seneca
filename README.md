@@ -5,7 +5,7 @@ https://en.wikipedia.org/wiki/Seneca_the_Younger
 
 This uses sci-hub, which is probably illegal.
 
-Literature indexing, search, and note management. Special attention tended to: 
+Literature indexing, search, and note management. Special attention towards: 
 
   * decentralized structure
   * low mental transaction cost on note read/write
@@ -14,37 +14,47 @@ Literature indexing, search, and note management. Special attention tended to:
 
 Assumes text editor of choice is `vim`. Good synergy with tiling window managers.
 
+Read more [here](https://kennethworkman.com/code/seneca/).
 
-_Think of big soup of literature, don't impose structure_
-1. Add paper with just URL
-2. Search across text easily
-3. Manage note buffers with each paper
+### Quickstart
 
-`seneca <paper url>`
-`seneca letters <grep search>`
+To install:
 
--> Search just brings `head -l 5` - can easily identify title.
-Then open paper with editor and open `seneca letter <paper>` for note.
+```
+git clone https://github.com/kennyworkman/seneca
+brew install zathura
+make build
+```
 
-## Implementation
+To add a paper:
 
-Efficiently searchable directory structure
-Directory for each paper:
-  * pdf
-  * pdf txt
-  * note buffer
+```
+seneca https://www.nature.com/articles/s41467-020-18008-4
+```
 
-`seneca http` - pulls from scihub?
+To search across indexed papers and retrieve note buffer:
+
+```
+seneca l 
+# or
+seneca letters
+```
+
+I think you will find this is all that you need. There is no delete. If you
+spent enough time indexing a reference, I'm of the opinion you should hang on to
+it (just in case).
+
+Notes persist across time. Opening a long forgotten paper weeks later will
+recover time stamped notes from my last interaction with it.
 
 ## Debt
 
-  * Doesn't work on:
-    * arxiv
-    * ncbi
-
-## Backlog
-
-  * Better metadata parsing / terminal presentation
-  * Grep over _only_ abstract or body 
-  * Integration with Athena for regular (morning) reading across topic space
-  * Automatic collection from arxiv based on things I should know about / read
+  * Non-filesystem persistence - sqlite3
+  * Support for non DOI-based references:
+    * market research
+    * books
+    * technical preprints
+  * Integration with other tools:
+    * Automatic indexing of relevant papers at spaced interval
+    * Priority list / backlog of desired reading
+    * Automatic presentation of backlog depending on calendar events
