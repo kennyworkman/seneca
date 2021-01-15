@@ -25,6 +25,13 @@ To add a paper:
 seneca https://www.nature.com/articles/s41467-020-18008-4
 ```
 
+
+To manually add a paper (if scraping fails):
+
+```
+seneca raw
+```
+
 To search across indexed papers and retrieve note buffer:
 
 ```

@@ -27,27 +27,85 @@ func main() {
 	fs := core.Filesystem{Root: usr.HomeDir}
 
 	if arg == "letters" || arg == "l" {
+
 		app.ReadPaper(fs)
+
+	} else if arg == "raw" {
+
+		url, doi, err := rawPrompt()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		paper, err := app.AddPaperRaw(url, doi, fs)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = confirmPrompt()
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			fs.ReadPaper(paper)
+		}
+
 	} else {
+
 		url := os.Args[1]
 		paper, err := app.AddPaper(url, fs)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		prompt := promptui.Prompt{
-			Label:     "access",
-			IsConfirm: true,
-		}
-
-		_, err = prompt.Run()
-
+		err = confirmPrompt()
 		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
-			return
+			log.Fatal(err)
 		} else {
 			fs.ReadPaper(paper)
 		}
 	}
+
+}
+
+// Utility to prompt for raw paper input
+func rawPrompt() (string, string, error) {
+
+	var url, doi string
+
+	prompt := promptui.Prompt{
+		Label: "url",
+	}
+
+	url, err := prompt.Run()
+
+	if err != nil {
+		return "", "", err
+
+	} else {
+
+		prompt := promptui.Prompt{
+			Label: "doi",
+		}
+
+		doi, err = prompt.Run()
+		if err != nil {
+			return "", "", err
+		} else {
+			return url, doi, nil
+		}
+	}
+
+}
+
+// Utility to present confirm prompt
+func confirmPrompt() error {
+
+	prompt := promptui.Prompt{
+		Label:     "access",
+		IsConfirm: true,
+	}
+
+	_, err := prompt.Run()
+	return err
 
 }
