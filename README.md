@@ -5,7 +5,7 @@ https://en.wikipedia.org/wiki/Seneca_the_Younger
 
 This uses sci-hub, which is probably illegal.
 
-Literature indexing, search, and note management.
+Literature indexing, search, and note management for bio programmers.
 
 ![](attention.gif)
 
