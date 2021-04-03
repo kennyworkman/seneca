@@ -24,4 +24,4 @@ run:
 		go run cmd/$(APP)/main.go
 
 test: build
-		go run cmd/$(APP)/main.go https://www.nature.com/articles/s41467-020-18008-4
+		go run cmd/$(APP)/main.go $(URL)

@@ -23,9 +23,12 @@ func NewPaper(doiPrefix, doiPostfix string) *Paper {
 }
 
 // DOI syntax - https://www.doi.org/doi_handbook/2_Numbering.html#2.2
+// Returns a (prefix, postfix) pair.
+// The prefix can itself have multiple nested identifiers in pathological cases:
+//	ie. 10.1093/bioinformatics/btz781 -> (10.1093/bioinformatics, btz781).
 func (p Paper) splitDOI() (string, string) {
 	splitDOI := strings.Split(p.DOI, "/")
-	return splitDOI[0], splitDOI[1]
+	return strings.Join(splitDOI[:len(splitDOI)-1], "/"), splitDOI[len(splitDOI)-1]
 }
 
 func (p Paper) pdfFile() string {
