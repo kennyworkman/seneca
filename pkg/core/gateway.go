@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -44,7 +45,12 @@ func (f Filesystem) SearchAndParse(query string) ([]*Paper, error) {
 	files := strings.Split(strings.TrimSpace(string(filesText)), "\n")
 	papers := []*Paper{}
 	for _, file := range files {
-		paper := txtFilePathtoPaper(file)
+
+		paper, err := txtFilePathtoPaper(file)
+		if err != nil {
+			return nil, err
+		}
+
 		// Hacky to conform to Field over Method interface of promptui.
 		head, err := paper.GetHead(f)
 		if err != nil {
@@ -64,10 +70,24 @@ func (f Filesystem) SearchAndParse(query string) ([]*Paper, error) {
 }
 
 // Utility to convert .txt file path to Paper object
-func txtFilePathtoPaper(path string) *Paper {
+func txtFilePathtoPaper(path string) (*Paper, error) {
 	splitPath := strings.Split(path, "/")
-	prefix, postfix := splitPath[len(splitPath)-2], splitPath[len(splitPath)-1]
-	return NewPaper(prefix, postfix[:len(postfix)-4])
+
+	rootIdx := -1
+	for i, element := range splitPath {
+		if element == ".seneca" {
+			rootIdx = i
+			break
+		}
+	}
+	if rootIdx == -1 {
+		return nil, errors.New("Pathological file path")
+	}
+
+	prefix := strings.Join(splitPath[rootIdx+1:len(splitPath)-1], "/")
+	postfix := splitPath[len(splitPath)-1]
+
+	return NewPaper(prefix, postfix[:len(postfix)-4]), nil
 }
 
 func (f Filesystem) AddPaper(paper *Paper) error {

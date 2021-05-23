@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/kennyworkman/seneca/pkg/core"
 	"github.com/manifoldco/promptui"
@@ -17,8 +18,6 @@ func ReadPaper(fs core.Filesystem) {
 
 		// filesystem search ?, using root
 		res, _ := fs.RawSearch(input)
-
-		// fmt.Printf("\n%+v\n", string(res))
 
 		if len(res) == 0 {
 			return errors.New("No results")
@@ -38,7 +37,10 @@ func ReadPaper(fs core.Filesystem) {
 		return
 	} else {
 
-		res, _ := fs.SearchAndParse(query)
+		res, err := fs.SearchAndParse(query)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		templates := &promptui.SelectTemplates{
 			Inactive: "{{ .DOI }}",
